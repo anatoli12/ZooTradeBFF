@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 public class FindItemByIdProcessor implements FindItemByIdOperation {
     private final ZooStoreRestExport zooStoreRestExport;
     private final StorageRestExport storageRestExport;
-
     @Override
     public com.tinqin.bff.api.operation.item.findbyid.FindItemByIdOutput process(FindItemByIdInput input) {
         FindItemByIdOutput item = zooStoreRestExport.findItemById(String.valueOf(input.getId()));
