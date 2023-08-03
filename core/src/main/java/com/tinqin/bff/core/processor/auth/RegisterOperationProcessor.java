@@ -4,12 +4,15 @@ import com.tinqin.bff.api.operation.security.JwtOperation;
 import com.tinqin.bff.api.operation.security.register.RegisterOperation;
 import com.tinqin.bff.api.operation.security.register.RegisterRequest;
 import com.tinqin.bff.api.operation.security.register.RegisterResponse;
+import com.tinqin.bff.persistence.model.Cart;
 import com.tinqin.bff.persistence.model.Role;
 import com.tinqin.bff.persistence.model.User;
 import com.tinqin.bff.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,11 @@ public class RegisterOperationProcessor implements RegisterOperation {
                 .email(input.getEmail())
                 .password(passwordEncoder.encode(input.getPassword()))
                 .role(Role.USER)
+                .cart(
+                        Cart.builder()
+                                .cartItems(new ArrayList<>())
+                                .build()
+                )
                 .build();
         userRepository.save(user);
         var jwtToken = jwtOperation.generateToken(user);

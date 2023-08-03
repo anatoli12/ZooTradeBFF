@@ -4,7 +4,6 @@ import com.tinqin.bff.api.operation.security.JwtOperation;
 import com.tinqin.bff.api.operation.security.auth.AuthenticationOperation;
 import com.tinqin.bff.api.operation.security.auth.AuthenticationRequest;
 import com.tinqin.bff.api.operation.security.auth.AuthenticationResponse;
-import com.tinqin.bff.api.operation.security.register.RegisterResponse;
 import com.tinqin.bff.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
