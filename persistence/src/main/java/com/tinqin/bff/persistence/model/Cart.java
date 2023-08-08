@@ -1,11 +1,9 @@
 package com.tinqin.bff.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,12 +20,8 @@ public class Cart implements Serializable {
     @Column(name = "cart_id", nullable = false)
     private UUID id;
 
-
-    @OneToMany
+    @OneToMany(mappedBy = "cart")
     private List<CartItem> cartItems;
-
-    @JsonFormat(pattern = "dd/MM/yyyy")
-    private LocalDateTime dateCreated;
 
     @Transient
     public int getNumberOfProducts() {

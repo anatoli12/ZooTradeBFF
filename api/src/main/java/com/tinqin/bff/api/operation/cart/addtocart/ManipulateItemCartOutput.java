@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddToCartOutput implements ProcessorOutput {
+public class ManipulateItemCartOutput implements ProcessorOutput {
     private UUID userId;
     private List<CartItemDTO> cartItems;
 }

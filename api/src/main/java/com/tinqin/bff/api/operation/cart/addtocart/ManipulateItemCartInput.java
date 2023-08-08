@@ -10,7 +10,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddToCartInput implements ProcessorInput {
+public class ManipulateItemCartInput implements ProcessorInput {
     private UUID userId;
     private UUID refItemId;
     private Integer quantity;

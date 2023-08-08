@@ -1,33 +1,38 @@
 package com.tinqin.bff.rest.controller;
 
-import com.tinqin.bff.api.operation.cart.addtocart.AddToCartInput;
-import com.tinqin.bff.api.operation.cart.addtocart.AddToCartOperation;
-import com.tinqin.bff.api.operation.cart.addtocart.AddToCartOutput;
+import com.tinqin.bff.api.operation.cart.addtocart.ManipulateItemCartInput;
+import com.tinqin.bff.api.operation.cart.addtocart.ManipulateItemCartOutput;
+import com.tinqin.bff.api.operation.cart.addtocart.ManipulateItemInCartOperation;
+import com.tinqin.bff.api.operation.cart.findusercart.FindUserCartInput;
+import com.tinqin.bff.api.operation.cart.findusercart.FindUserCartOperation;
+import com.tinqin.bff.api.operation.cart.findusercart.FindUserCartOutput;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/cart")
 @RequiredArgsConstructor
 public class CartController {
-    private final AddToCartOperation addToCartOperation;
+    private final ManipulateItemInCartOperation manipulateItemInCartOperation;
+    private final FindUserCartOperation findUserCartOperation;
 
-    /**
-     * {
-     *   "userId": "d2994021-c250-4e87-b519-ef0ca0886a0b",
-     *   "refItemId": "8470023a-5b70-45ff-8076-61748a6a19e3",
-     *   "quantity": 5
-     * }
-     */
     @PostMapping
     @Transactional
-    public ResponseEntity<AddToCartOutput> addToCart(@RequestBody AddToCartInput input) {
-        return ResponseEntity.ok(addToCartOperation.process(input));
+    public ResponseEntity<ManipulateItemCartOutput> manipulateItem(@RequestBody ManipulateItemCartInput input) {
+        return ResponseEntity.ok(manipulateItemInCartOperation.process(input));
+    }
+
+    @GetMapping("/{userId}")
+    @Transactional
+    public ResponseEntity<FindUserCartOutput> findUserCart(@PathVariable UUID userId) {
+        FindUserCartInput i = FindUserCartInput.builder()
+                .userId(userId)
+                .build();
+        return ResponseEntity.ok(findUserCartOperation.process(i));
     }
 
 }

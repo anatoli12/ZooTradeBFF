@@ -14,22 +14,27 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class RestClientFactory {
 
-    private final ObjectMapper objectMapper;
-
     @Bean
     ZooStoreRestExport getMyZooTradeExportClient() {
 
+        ObjectMapper om = new ObjectMapper();
+        om.findAndRegisterModules();
+
         return Feign.builder()
-                .encoder(new JacksonEncoder(objectMapper))
-                .decoder(new JacksonDecoder(objectMapper))
+                .encoder(new JacksonEncoder(om))
+                .decoder(new JacksonDecoder(om))
+                .requestInterceptor(new MyRequestInterceptor())
                 .target(ZooStoreRestExport.class, "http://localhost:1234");
     }
     @Bean
     StorageRestExport getMyStorageRestExportClient() {
 
+        ObjectMapper om = new ObjectMapper();
+        om.findAndRegisterModules();
         return Feign.builder()
-                .encoder(new JacksonEncoder(objectMapper))
-                .decoder(new JacksonDecoder(objectMapper))
+                .encoder(new JacksonEncoder(om))
+                .decoder(new JacksonDecoder(om))
+                .requestInterceptor(new MyRequestInterceptor())
                 .target(StorageRestExport.class, "http://localhost:8080");
     }
 }

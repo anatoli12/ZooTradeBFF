@@ -1,11 +1,11 @@
 package com.tinqin.bff.core.processor.cart;
 
+import com.tinqin.api.operation.item.findbyid.FindItemByIdInput;
 import com.tinqin.bff.api.operation.cart.CartItemDTO;
-import com.tinqin.bff.api.operation.cart.addtocart.AddToCartInput;
-import com.tinqin.bff.api.operation.cart.addtocart.AddToCartOperation;
-import com.tinqin.bff.api.operation.cart.addtocart.AddToCartOutput;
-import com.tinqin.bff.api.operation.item.findbyid.FindItemByIdInput;
-import com.tinqin.bff.core.processor.item.FindItemByIdProcessor;
+import com.tinqin.bff.api.operation.cart.addtocart.ManipulateItemCartInput;
+import com.tinqin.bff.api.operation.cart.addtocart.ManipulateItemCartOutput;
+import com.tinqin.bff.api.operation.cart.addtocart.ManipulateItemInCartOperation;
+import com.tinqin.bff.core.processor.item.FindItemByIdByIdOperationProcessor;
 import com.tinqin.bff.persistence.model.CartItem;
 import com.tinqin.bff.persistence.model.User;
 import com.tinqin.bff.persistence.repository.CartItemRepository;
@@ -17,18 +17,18 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AddToCartProcessor implements AddToCartOperation {
+public class ManipulateItemInCartProcessor implements ManipulateItemInCartOperation {
 
     private final UserRepository userRepository;
     private final CartItemRepository cartItemRepository;
-    private final FindItemByIdProcessor findItemByIdProcessor;
+    private final FindItemByIdByIdOperationProcessor findItemByIdProcessor;
 
-    public AddToCartOutput process(AddToCartInput input) {
+    public ManipulateItemCartOutput process(ManipulateItemCartInput input) {
         final User user = userRepository.findById(input.getUserId())
                 .orElseThrow(); //TODO: Appropriate exception
 
         // check if item exists
-        findItemByIdProcessor.process(FindItemByIdInput.builder().id(input.getRefItemId()).build());
+        findItemByIdProcessor.process(FindItemByIdInput.builder().id(String.valueOf(input.getRefItemId())).build());
 
         /*
           The code first tries to find an existing CartItem in the user's cart with a matching refItemId using the findFirst() method after filtering the stream of cart items.
@@ -49,14 +49,14 @@ public class AddToCartProcessor implements AddToCartOperation {
                     CartItem cartItem = CartItem.builder()
                             .refItemId(input.getRefItemId())
                             .quantity(input.getQuantity())
+                            .cart(user.getCart())
                             .build();
                     user.getCart().getCartItems().add(cartItem);
                     return cartItem;
                 });
         cartItemRepository.save(newCartItem);
         userRepository.save(user);
-// TODO: Check code
-// TODO: Implement storage check and storage decrement
+
         List<CartItemDTO> cartItemDTOList = user.getCart().getCartItems()
                 .stream()
                 .map(cartItem ->
@@ -67,7 +67,7 @@ public class AddToCartProcessor implements AddToCartOperation {
                                 .build()
                 )
                 .toList();
-        return AddToCartOutput.builder()
+        return ManipulateItemCartOutput.builder()
                 .userId(user.getId())
                 .cartItems(cartItemDTOList)
                 .build();
