@@ -2,6 +2,7 @@ package com.tinqin.bff.rest.controller;
 
 import com.tinqin.api.operation.item.findall.FindAllItemsOperation;
 import com.tinqin.api.operation.item.findall.FindAllItemsOutput;
+import com.tinqin.api.operation.item.findallregex.FindAllItemsRegexOutput;
 import com.tinqin.api.operation.item.findbyid.FindItemByIdOperation;
 import com.tinqin.api.operation.item.findbyid.FindItemByIdOutput;
 import com.tinqin.restexport.ZooStoreRestExport;
@@ -15,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,10 +57,15 @@ public class ItemController {
                 descriptionContains
         ));
     }
-//    public ResponseEntity<AddCommentToItemOutput> addComentToItem(
-//            @RequestParam UUID userId,
-//            @RequestParam UUID itemId
-//    ) {
-////        return ResponseEntity.ok(zooStoreRestExport)
-//    }
+
+    @GetMapping("/regex")
+    public ResponseEntity<FindAllItemsRegexOutput> findItemsByRegex(@RequestParam Optional<Integer> pageNumber,
+                                                                    @RequestParam Optional<Integer> pageSize,
+                                                                    @RequestParam String regex) {
+        return ResponseEntity.ok(zooStoreRestExport.findRegexItems(
+                pageNumber,
+                pageSize,
+                regex
+        ));
+    }
 }
