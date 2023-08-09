@@ -18,11 +18,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -38,29 +41,31 @@ public class CompleteOrderProcessor implements CompleteOrderOperation {
     @Override
     public CompleteOrderOutput process(CompleteOrderInput input) {
         final User user = userRepository.findById(input.getUserId())
-                .orElseThrow(); //TODO: Appropriate exception
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        for (CartItem c : user.getCart().getCartItems()) {
+        List<CartItem> cartItems = user.getCart().getCartItems();
 
-            StorageBaseDTO storageDto = storageRestExport.findByItemId(String.valueOf(c.getRefItemId())).getStorageBaseDTO();
+        boolean hasInsufficientQuantity = cartItems.parallelStream()
+                .map(c -> storageRestExport.findByItemId(String.valueOf(c.getRefItemId())).getStorageBaseDTO())
+                .anyMatch(storageDto -> storageDto.getQuantity() < cartItems.stream()
+                        .filter(c -> String.valueOf(c.getRefItemId()).equals(storageDto.getItemId()))
+                        .mapToInt(CartItem::getQuantity)
+                        .sum());
 
-            if (storageDto.getQuantity() < c.getQuantity()) {
-                throw new IllegalArgumentException("Not enough quantity of item " + c.getRefItemId());
-            }
+        if (hasInsufficientQuantity) {
+            throw new IllegalArgumentException("Not enough quantity of some items");
         }
-        BigDecimal totalPrice = BigDecimal.valueOf(0.00);
-        for (CartItem c : user.getCart().getCartItems()) {
 
-            storageRestExport.updateStorageQuantity(ChangeStorageQuantityInput.builder()
-                    .itemId(String.valueOf(c.getRefItemId()))
-                    .quantity(c.getQuantity()*(-1))
-                    .build());
-            totalPrice = totalPrice.add(new BigDecimal(
-                    storageRestExport
-                            .findByItemId(String.valueOf(c.getRefItemId()))
-                            .getStorageBaseDTO()
-                            .getPrice()).multiply(new BigDecimal(c.getQuantity())));
-        }
+        BigDecimal totalPrice = cartItems.parallelStream()
+                .map(c -> {
+                    StorageBaseDTO storageDto = storageRestExport.findByItemId(String.valueOf(c.getRefItemId())).getStorageBaseDTO();
+                    storageRestExport.updateStorageQuantity(ChangeStorageQuantityInput.builder()
+                            .itemId(String.valueOf(c.getRefItemId()))
+                            .quantity(c.getQuantity() * (-1))
+                            .build());
+                    return new BigDecimal(storageDto.getPrice()).multiply(new BigDecimal(c.getQuantity()));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Order order = Order.builder()
                 .createDate(new Timestamp(System.currentTimeMillis()))
@@ -70,12 +75,12 @@ public class CompleteOrderProcessor implements CompleteOrderOperation {
                 .build();
 
         orderRepository.save(order);
-
-        for (CartItem c : user.getCart().getCartItems()) {
-            c.setCart(null);
-            c.setOrder(order);
-            cartItemRepository.save(c);
-        }
+        cartItems.parallelStream()
+                .forEach(c -> {
+                    c.setCart(null);
+                    c.setOrder(order);
+                    cartItemRepository.save(c);
+                });
 
         CompleteOrderOutput result = CompleteOrderOutput.builder()
                 .userId(order.getUser().getId())

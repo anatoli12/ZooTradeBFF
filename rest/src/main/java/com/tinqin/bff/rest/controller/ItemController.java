@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,8 +57,10 @@ public class ItemController {
                 descriptionContains
         ));
     }
-    @GetMapping("/test")
-    public ResponseEntity<FindAllItemsOutput> findAllTest(){
-        return ResponseEntity.ok(zooStoreRestExport.findItemsTest());
-    }
+//    public ResponseEntity<AddCommentToItemOutput> addComentToItem(
+//            @RequestParam UUID userId,
+//            @RequestParam UUID itemId
+//    ) {
+////        return ResponseEntity.ok(zooStoreRestExport)
+//    }
 }
