@@ -58,7 +58,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.tinqin.bff.rest.RestApplication.class</mainClass>
+                    <mainClass>com.tinqin.bff.rest.RestApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
