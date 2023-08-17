@@ -24,7 +24,7 @@ public class RestClientFactory {
                 .encoder(new JacksonEncoder(om))
                 .decoder(new JacksonDecoder(om))
                 .requestInterceptor(new MyRequestInterceptor())
-                .target(ZooStoreRestExport.class, "http://localhost:1234");
+                .target(ZooStoreRestExport.class, "http://localhost:8080");
     }
     @Bean
     StorageRestExport getMyStorageRestExportClient() {
@@ -35,6 +35,6 @@ public class RestClientFactory {
                 .encoder(new JacksonEncoder(om))
                 .decoder(new JacksonDecoder(om))
                 .requestInterceptor(new MyRequestInterceptor())
-                .target(StorageRestExport.class, "http://localhost:8080");
+                .target(StorageRestExport.class, "http://localhost:8081");
     }
 }
