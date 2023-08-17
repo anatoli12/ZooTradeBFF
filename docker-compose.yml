@@ -34,6 +34,7 @@ services:
     stdin_open: true
     tty: true
 
+
   zoo-storage:
     depends_on:
       - mysql-server
