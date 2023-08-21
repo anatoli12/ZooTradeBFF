@@ -12,6 +12,8 @@ services:
       - zoo-mysql-server:/var/lib/mysql
     ports:
       - ${MYSQLDB_LOCAL_PORT}:${MYSQLDB_DOCKER_PORT}
+    networks:
+      zoo-net: { }
 
   zoo-trade:
     depends_on:
@@ -33,6 +35,8 @@ services:
       - .m2:/root/.m2
     stdin_open: true
     tty: true
+    networks:
+      zoo-net: { }
 
 
   zoo-storage:
@@ -56,6 +60,8 @@ services:
       - .m2:/root/.m2
     stdin_open: true
     tty: true
+    networks:
+      zoo-net: { }
 
   zoo-bff:
     depends_on:
@@ -79,6 +85,12 @@ services:
       - .m2:/root/.m2
     stdin_open: true
     tty: true
+    networks:
+      zoo-net: { }
 
 volumes:
   zoo-mysql-server:
+    name: "zoo-mysql-server"
+networks:
+  zoo-net:
+    driver: bridge
